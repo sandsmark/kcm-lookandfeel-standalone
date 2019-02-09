@@ -1,15 +1,63 @@
+cmake_minimum_required(VERSION 3.0)
+project(klookandfeel)
 # KI18N Translation Domain for this library
 add_definitions(-DTRANSLATION_DOMAIN=\"kcm_lookandfeel\")
 
 configure_file (config-kcm.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kcm.h )
 
+set(QT_MIN_VERSION "5.11.0")
+set(KF5_MIN_VERSION "5.54.0")
+
+find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
+include(ECMInstallIcons)
+include(ECMMarkAsTest)
+include(ECMMarkNonGuiExecutable)
+include(ECMOptionalAddSubdirectory)
+include(ECMQtDeclareLoggingCategory)
+include(FeatureSummary)
+include(CheckIncludeFiles)
+
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS
+    Quick
+    QuickWidgets
+    DBus
+    Widgets
+    X11Extras
+    Svg
+    Concurrent
+)
+
+find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
+    Auth
+    Plasma
+    PlasmaQuick
+    DocTools
+    I18n
+    KCMUtils
+    NewStuff
+    KDELibs4Support
+    Notifications
+    NotifyConfig
+    Attica
+    Wallet
+    Runner
+    GlobalAccel
+    Declarative
+    DBusAddons
+    Config
+)
+remove_definitions(-DQT_NO_CAST_FROM_ASCII -DQT_STRICT_ITERATORS -DQT_NO_CAST_FROM_BYTEARRAY -DQT_NO_KEYWORDS)
+
 
 set(kcm_lookandfeel_SRCS
   kcmmain.cpp
   kcm.cpp
-  ../krdb/krdb.cpp
-  ../cursortheme/xcursor/cursortheme.cpp
-  ../cursortheme/xcursor/xcursortheme.cpp
+  #../krdb/krdb.cpp
 )
 
 set(klauncher_xml ${KINIT_DBUS_INTERFACES_DIR}/kf5_org.kde.KLauncher.xml)
@@ -32,15 +80,12 @@ target_link_libraries(kcm_lookandfeel
   Qt5::DBus
   Qt5::Widgets
   Qt5::QuickWidgets
-  ${X11_LIBRARIES}
+  Qt5::X11Extras
 )
 
 if(X11_FOUND)
     target_link_libraries(kcm_lookandfeel Qt5::X11Extras)
 endif()
-if (X11_Xcursor_FOUND)
-   target_link_libraries(kcm_lookandfeel ${X11_Xcursor_LIB})
-endif ()
 if (X11_Xfixes_FOUND)
    target_link_libraries(kcm_lookandfeel ${X11_Xfixes_LIB})
 endif ()
@@ -52,22 +97,13 @@ install(FILES kcm_lookandfeel.desktop DESTINATION ${KDE_INSTALL_KSERVICES5DIR})
 install(TARGETS kcm_lookandfeel DESTINATION ${KDE_INSTALL_PLUGINDIR}/kcms)
 install(FILES lookandfeel.knsrc DESTINATION ${KDE_INSTALL_CONFDIR})
 
-if(BUILD_TESTING)
-   find_package(Qt5Test ${QT_MIN_VERSION} CONFIG REQUIRED)
-   add_subdirectory(autotests)
-endif()
-
-kpackage_install_package(package kcm_lookandfeel kcms)
-
 ###### Command line tool
 
 set(lookandfeeltool_SRCS
     lnftool.cpp
     # TODO: load kcm plugin instead of using code copy
     kcm.cpp
-    ../krdb/krdb.cpp
-    ../cursortheme/xcursor/cursortheme.cpp
-    ../cursortheme/xcursor/xcursortheme.cpp
+    #../krdb/krdb.cpp
 )
 
 qt5_add_dbus_interface(lookandfeeltool_SRCS ${klauncher_xml} klauncher_iface)
@@ -96,9 +132,6 @@ target_link_libraries(lookandfeeltool
 if(X11_FOUND)
     target_link_libraries(lookandfeeltool Qt5::X11Extras)
 endif()
-if (X11_Xcursor_FOUND)
-   target_link_libraries(lookandfeeltool ${X11_Xcursor_LIB})
-endif ()
 if (X11_Xfixes_FOUND)
    target_link_libraries(lookandfeeltool ${X11_Xfixes_LIB})
 endif ()

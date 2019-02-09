@@ -18,10 +18,10 @@
 */
 
 #include "kcm.h"
+#if 0
 #include "../krdb/krdb.h"
-#include "../cursortheme/xcursor/xcursortheme.h"
+#endif
 #include "config-kcm.h"
-#include "config-workspace.h"
 #include <klauncher_iface.h>
 
 #include <KAboutData>
@@ -41,7 +41,8 @@
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QStandardItemModel>
-#include <QX11Info>
+//#include <QX11Info>
+#include <KMessageBox>
 
 #include <KLocalizedString>
 #include <Plasma/PluginLoader>
@@ -430,7 +431,9 @@ void KCMLookandFeel::save()
     setLockScreen(m_selectedPlugin);
 
     m_configGroup.sync();
+#if 0
     runRdb(KRdbExportQtColors | KRdbExportGtkTheme | KRdbExportColors | KRdbExportQtSettings | KRdbExportXftSettings);
+#endif
 }
 
 void KCMLookandFeel::defaults()
@@ -568,7 +571,7 @@ void KCMLookandFeel::setCursorTheme(const QString themeName)
     }
 
 #else
-    KMessageBox::information(this,
+    KMessageBox::information(nullptr,
                                  i18n("You have to restart the Plasma session for these changes to take effect."),
                                  i18n("Cursor Settings Changed"), "CursorSettingsChanged");
 #endif
@@ -622,6 +625,8 @@ QDir KCMLookandFeel::cursorThemeDir(const QString &theme, const int depth)
 
 const QStringList KCMLookandFeel::cursorSearchPaths()
 {
+    return {};
+#if 0
     if (!m_cursorSearchPaths.isEmpty())
         return m_cursorSearchPaths;
 
@@ -633,9 +638,10 @@ const QStringList KCMLookandFeel::cursorSearchPaths()
     char *xcursorPath = std::getenv("XCURSOR_PATH");
     if (xcursorPath)
         path = xcursorPath;
-#else
+#elif 0
     // Get the search path from Xcursor
     QString path = XcursorLibraryPath();
+#else
 #endif
 
     // Separate the paths
@@ -655,6 +661,7 @@ const QStringList KCMLookandFeel::cursorSearchPaths()
     // Expand all occurrences of ~/ to the home dir
     m_cursorSearchPaths.replaceInStrings(QRegExp(QStringLiteral("^~\\/")), QDir::home().path() + QLatin1Char('/'));
     return m_cursorSearchPaths;
+#endif
 }
 
 void KCMLookandFeel::setSplashScreen(const QString &theme)
