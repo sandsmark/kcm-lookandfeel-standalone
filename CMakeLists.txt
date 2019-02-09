@@ -128,6 +128,8 @@ target_link_libraries(lookandfeeltool
   Qt5::QuickWidgets
   ${X11_LIBRARIES}
 )
+kpackage_install_package(package kcm_lookandfeel kcms)
+
 
 if(X11_FOUND)
     target_link_libraries(lookandfeeltool Qt5::X11Extras)
